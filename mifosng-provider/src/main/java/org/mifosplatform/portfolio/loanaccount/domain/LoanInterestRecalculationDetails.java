@@ -61,24 +61,39 @@ public class LoanInterestRecalculationDetails extends AbstractPersistable<Long> 
     @Column(name = "rest_freqency_date")
     private Date restFrequencyDate;
 
+    @Column(name = "compounding_frequency_type_enum", nullable = true)
+    private Integer compoundingFrequencyType;
+
+    @Column(name = "compounding_frequency_interval", nullable = true)
+    private Integer compoundingInterval;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "compounding_freqency_date")
+    private Date compoundingFrequencyDate;
+
     protected LoanInterestRecalculationDetails() {
         // Default constructor for jpa repository
     }
 
     private LoanInterestRecalculationDetails(final Integer interestRecalculationCompoundingMethod, final Integer rescheduleStrategyMethod,
-            final Integer restFrequencyType, final Integer restInterval, final Date restFrequencyDate) {
+            final Integer restFrequencyType, final Integer restInterval, final Date restFrequencyDate, Integer compoundingFrequencyType,
+            Integer compoundingInterval, Date compoundingFrequencyDate) {
         this.interestRecalculationCompoundingMethod = interestRecalculationCompoundingMethod;
         this.rescheduleStrategyMethod = rescheduleStrategyMethod;
         this.restFrequencyDate = restFrequencyDate;
         this.restFrequencyType = restFrequencyType;
         this.restInterval = restInterval;
+        this.compoundingFrequencyDate = compoundingFrequencyDate;
+        this.compoundingFrequencyType = compoundingFrequencyType;
+        this.compoundingInterval = compoundingInterval;
     }
 
     public static LoanInterestRecalculationDetails createFrom(final Integer interestRecalculationCompoundingMethod,
             final Integer rescheduleStrategyMethod, final Integer restFrequencyType, final Integer restInterval,
-            final Date restFrequencyDate) {
+            final Date restFrequencyDate, final Integer compoundingFrequencyType, final Integer compoundingInterval,
+            final Date compoundingFrequencyDate) {
         return new LoanInterestRecalculationDetails(interestRecalculationCompoundingMethod, rescheduleStrategyMethod, restFrequencyType,
-                restInterval, restFrequencyDate);
+                restInterval, restFrequencyDate, compoundingFrequencyType, compoundingInterval, compoundingFrequencyDate);
     }
 
     public void updateLoan(final Loan loan) {
@@ -96,7 +111,31 @@ public class LoanInterestRecalculationDetails extends AbstractPersistable<Long> 
             actualChanges.put("locale", localeAsInput);
 
             final LocalDate newValue = command.localDateValueOfParameterNamed(LoanProductConstants.recalculationRestFrequencyDateParamName);
-            this.restFrequencyDate = newValue.toDate();
+            if (newValue == null || getRestFrequencyType().isSameAsRepayment()) {
+                this.restFrequencyDate = null;
+            } else {
+                this.restFrequencyDate = newValue.toDate();
+            }
+        }
+
+        if (command.isChangeInLocalDateParameterNamed(LoanProductConstants.recalculationCompoundingFrequencyDateParamName,
+                getCompoundingFrequencyLocalDate())) {
+            final String dateFormatAsInput = command.dateFormat();
+            final String localeAsInput = command.locale();
+            final String valueAsInput = command
+                    .stringValueOfParameterNamed(LoanProductConstants.recalculationCompoundingFrequencyDateParamName);
+            actualChanges.put(LoanProductConstants.recalculationCompoundingFrequencyDateParamName, valueAsInput);
+            actualChanges.put("dateFormat", dateFormatAsInput);
+            actualChanges.put("locale", localeAsInput);
+
+            final LocalDate newValue = command
+                    .localDateValueOfParameterNamed(LoanProductConstants.recalculationCompoundingFrequencyDateParamName);
+            if (newValue == null || !getInterestRecalculationCompoundingMethod().isCompoundingEnabled()
+                    || getCompoundingFrequencyType().isSameAsRepayment()) {
+                this.compoundingFrequencyDate = null;
+            } else {
+                this.compoundingFrequencyDate = newValue.toDate();
+            }
         }
     }
 
@@ -122,5 +161,21 @@ public class LoanInterestRecalculationDetails extends AbstractPersistable<Long> 
 
     public Integer getRestInterval() {
         return this.restInterval;
+    }
+
+    public LocalDate getCompoundingFrequencyLocalDate() {
+        LocalDate recurrenceOnLocalDate = null;
+        if (this.compoundingFrequencyDate != null) {
+            recurrenceOnLocalDate = new LocalDate(this.compoundingFrequencyDate);
+        }
+        return recurrenceOnLocalDate;
+    }
+
+    public RecalculationFrequencyType getCompoundingFrequencyType() {
+        return RecalculationFrequencyType.fromInt(this.compoundingFrequencyType);
+    }
+
+    public Integer getCompoundingInterval() {
+        return this.compoundingInterval;
     }
 }

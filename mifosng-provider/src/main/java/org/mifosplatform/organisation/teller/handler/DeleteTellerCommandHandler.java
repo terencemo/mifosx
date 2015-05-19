@@ -5,11 +5,13 @@
  */
 package org.mifosplatform.organisation.teller.handler;
 
+import org.mifosplatform.commands.annotation.CommandType;
 import org.mifosplatform.commands.handler.NewCommandSourceHandler;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.organisation.teller.service.TellerWritePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Handles a delete teller command.
@@ -18,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @see org.mifosplatform.organisation.teller.service.TellerWritePlatformService
  * @since 2.0.0
  */
+@Service
+@CommandType(entity = "TELLER", action = "DELETE")
 public class DeleteTellerCommandHandler implements NewCommandSourceHandler {
 
     private final TellerWritePlatformService writePlatformService;

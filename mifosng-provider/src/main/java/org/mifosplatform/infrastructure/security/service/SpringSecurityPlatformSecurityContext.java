@@ -32,6 +32,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpringSecurityPlatformSecurityContext implements PlatformSecurityContext {
 
+    // private final static Logger logger =
+    // LoggerFactory.getLogger(SpringSecurityPlatformSecurityContext.class);
+
     private final ConfigurationDomainService configurationDomainService;
 
     public static final List<CommandWrapper> EXEMPT_FROM_PASSWORD_RESET_CHECK = new ArrayList<CommandWrapper>() {
@@ -124,7 +127,7 @@ public class SpringSecurityPlatformSecurityContext implements PlatformSecurityCo
     @Override
     public boolean doesPasswordHasToBeRenewed(AppUser currentUser) {
 
-        if (this.configurationDomainService.isPasswordForcedResetEnable()) {
+        if (this.configurationDomainService.isPasswordForcedResetEnable() && !currentUser.getPasswordNeverExpires()) {
 
             Long passwordDurationDays = this.configurationDomainService.retrievePasswordLiveTime();
             final Date passWordLastUpdateDate = currentUser.getLastTimePasswordUpdated();

@@ -35,6 +35,7 @@ import org.mifosplatform.infrastructure.security.service.PlatformPasswordEncoder
 import org.mifosplatform.infrastructure.security.service.RandomPasswordGenerator;
 import org.mifosplatform.organisation.office.domain.Office;
 import org.mifosplatform.organisation.staff.domain.Staff;
+import org.mifosplatform.useradministration.service.AppUserConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.AbstractPersistable;
@@ -97,6 +98,9 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
     @Temporal(TemporalType.DATE)
     private Date lastTimePasswordUpdated;
 
+    @Column(name = "password_never_expires", nullable = false)
+    private boolean passwordNeverExpires;
+
     public static AppUser fromJson(final Office userOffice, final Staff linkedStaff, final Set<Role> allRoles, final JsonCommand command) {
 
         final String username = command.stringValueOfParameterNamed("username");
@@ -105,6 +109,12 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
 
         if (sendPasswordToEmail.booleanValue()) {
             password = new RandomPasswordGenerator(13).generate();
+        }
+
+        boolean passwordNeverExpire = false;
+
+        if (command.parameterExists(AppUserConstants.PASSWORD_NEVER_EXPIRES)) {
+            passwordNeverExpire = command.booleanPrimitiveValueOfParameterNamed(AppUserConstants.PASSWORD_NEVER_EXPIRES);
         }
 
         final boolean userEnabled = true;
@@ -122,7 +132,7 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
         final String firstname = command.stringValueOfParameterNamed("firstname");
         final String lastname = command.stringValueOfParameterNamed("lastname");
 
-        return new AppUser(userOffice, user, allRoles, email, firstname, lastname, linkedStaff);
+        return new AppUser(userOffice, user, allRoles, email, firstname, lastname, linkedStaff, passwordNeverExpire);
     }
 
     protected AppUser() {
@@ -132,7 +142,7 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
     }
 
     public AppUser(final Office office, final User user, final Set<Role> roles, final String email, final String firstname,
-            final String lastname, final Staff staff) {
+            final String lastname, final Staff staff, final boolean passwordNeverExpire) {
         this.office = office;
         this.email = email.trim();
         this.username = user.getUsername().trim();
@@ -147,6 +157,7 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
         this.firstTimeLoginRemaining = true;
         this.lastTimePasswordUpdated = DateUtils.getDateOfTenant();
         this.staff = staff;
+        this.passwordNeverExpires = passwordNeverExpire;
     }
 
     public EnumOptionData organisationalRoleData() {
@@ -250,6 +261,16 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
             this.email = newValue;
         }
 
+        final String passwordNeverExpire = "passwordNeverExpires";
+
+        if (command.hasParameter(passwordNeverExpire)) {
+            if (command.isChangeInBooleanParameterNamed(passwordNeverExpire, this.passwordNeverExpires)) {
+                final boolean newValue = command.booleanPrimitiveValueOfParameterNamed(passwordNeverExpire);
+                actualChanges.put(passwordNeverExpire, newValue);
+                this.passwordNeverExpires = newValue;
+            }
+        }
+
         return actualChanges;
     }
 
@@ -349,6 +370,10 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
 
     public Staff getStaff() {
         return this.staff;
+    }
+
+    public boolean getPasswordNeverExpires() {
+        return this.passwordNeverExpires;
     }
 
     public Date getLastTimePasswordUpdated() {

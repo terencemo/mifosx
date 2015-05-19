@@ -6,11 +6,13 @@
 package org.mifosplatform.portfolio.loanproduct.data;
 
 import static org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations.interestRecalculationCompoundingType;
+import static org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations.preCloseInterestCalculationStrategy;
 import static org.mifosplatform.portfolio.loanproduct.service.LoanEnumerations.rescheduleStrategyType;
 
 import org.joda.time.LocalDate;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
 import org.mifosplatform.portfolio.loanproduct.domain.InterestRecalculationCompoundingMethod;
+import org.mifosplatform.portfolio.loanproduct.domain.LoanPreClosureInterestCalculationStrategy;
 import org.mifosplatform.portfolio.loanproduct.domain.LoanRescheduleStrategyMethod;
 
 public class LoanProductInterestRecalculationData {
@@ -24,13 +26,20 @@ public class LoanProductInterestRecalculationData {
     private final EnumOptionData recalculationRestFrequencyType;
     private final Integer recalculationRestFrequencyInterval;
     private final LocalDate recalculationRestFrequencyDate;
+    private final EnumOptionData recalculationCompoundingFrequencyType;
+    private final Integer recalculationCompoundingFrequencyInterval;
+    private final LocalDate recalculationCompoundingFrequencyDate;
     @SuppressWarnings("unused")
     private final boolean isArrearsBasedOnOriginalSchedule;
+    @SuppressWarnings("unused")
+    private final EnumOptionData preClosureInterestCalculationStrategy;
 
     public LoanProductInterestRecalculationData(final Long id, final Long productId,
             final EnumOptionData interestRecalculationCompoundingType, final EnumOptionData rescheduleStrategyType,
             final EnumOptionData recalculationRestFrequencyType, final Integer recalculationRestFrequencyInterval,
-            final LocalDate recalculationRestFrequencyDate, boolean isArrearsBasedOnOriginalSchedule) {
+            final LocalDate recalculationRestFrequencyDate, final EnumOptionData recalculationCompoundingFrequencyType,
+            final Integer recalculationCompoundingFrequencyInterval, final LocalDate recalculationCompoundingFrequencyDate,
+            final boolean isArrearsBasedOnOriginalSchedule, final EnumOptionData preCloseInterestCalculationStrategy) {
         this.id = id;
         this.productId = productId;
         this.interestRecalculationCompoundingType = interestRecalculationCompoundingType;
@@ -38,7 +47,11 @@ public class LoanProductInterestRecalculationData {
         this.recalculationRestFrequencyType = recalculationRestFrequencyType;
         this.recalculationRestFrequencyInterval = recalculationRestFrequencyInterval;
         this.recalculationRestFrequencyDate = recalculationRestFrequencyDate;
+        this.recalculationCompoundingFrequencyType = recalculationCompoundingFrequencyType;
+        this.recalculationCompoundingFrequencyInterval = recalculationCompoundingFrequencyInterval;
+        this.recalculationCompoundingFrequencyDate = recalculationCompoundingFrequencyDate;
         this.isArrearsBasedOnOriginalSchedule = isArrearsBasedOnOriginalSchedule;
+        this.preClosureInterestCalculationStrategy = preCloseInterestCalculationStrategy;
     }
 
     public static LoanProductInterestRecalculationData sensibleDefaultsForNewLoanProductCreation() {
@@ -49,10 +62,15 @@ public class LoanProductInterestRecalculationData {
         final EnumOptionData recalculationRestFrequencyType = null;
         final Integer recalculationRestFrequencyInterval = null;
         final LocalDate recalculationRestFrequencyDate = null;
+        final EnumOptionData recalculationCompoundingFrequencyType = null;
+        final Integer recalculationCompoundingFrequencyInterval = null;
+        final LocalDate recalculationCompoundingFrequencyDate = null;
         final boolean isArrearsBasedOnOriginalSchedule = false;
+        final EnumOptionData preCloseInterestCalculationStrategy = preCloseInterestCalculationStrategy(LoanPreClosureInterestCalculationStrategy.TILL_PRE_CLOSURE_DATE);
         return new LoanProductInterestRecalculationData(id, productId, interestRecalculationCompoundingType, rescheduleStrategyType,
                 recalculationRestFrequencyType, recalculationRestFrequencyInterval, recalculationRestFrequencyDate,
-                isArrearsBasedOnOriginalSchedule);
+                recalculationCompoundingFrequencyType, recalculationCompoundingFrequencyInterval, recalculationCompoundingFrequencyDate,
+                isArrearsBasedOnOriginalSchedule, preCloseInterestCalculationStrategy);
     }
 
     public EnumOptionData getInterestRecalculationCompoundingType() {
@@ -73,6 +91,18 @@ public class LoanProductInterestRecalculationData {
 
     public Integer getRecalculationRestFrequencyInterval() {
         return this.recalculationRestFrequencyInterval;
+    }
+
+    public EnumOptionData getRecalculationCompoundingFrequencyType() {
+        return this.recalculationCompoundingFrequencyType;
+    }
+
+    public Integer getRecalculationCompoundingFrequencyInterval() {
+        return this.recalculationCompoundingFrequencyInterval;
+    }
+
+    public LocalDate getRecalculationCompoundingFrequencyDate() {
+        return this.recalculationCompoundingFrequencyDate;
     }
 
 }

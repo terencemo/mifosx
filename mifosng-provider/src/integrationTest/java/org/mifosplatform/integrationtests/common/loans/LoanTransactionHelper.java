@@ -93,10 +93,21 @@ public class LoanTransactionHelper {
         return Utils.performServerGet(requestSpec, responseSpec, URL, param);
     }
 
+    public String getLoanDetails(final RequestSpecification requestSpec, final ResponseSpecification responseSpec, final Integer loanID) {
+        final String URL = "/mifosng-provider/api/v1/loans/" + loanID + "?associations=all&" + Utils.TENANT_IDENTIFIER;
+        return Utils.performServerGet(requestSpec, responseSpec, URL, null);
+    }
+
     public Object getLoanProductDetail(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
             final Integer loanProductId, final String jsonAttributeToGetBack) {
         final String URL = "/mifosng-provider/api/v1/loanproducts/" + loanProductId + "?associations=all&" + Utils.TENANT_IDENTIFIER;
         return Utils.performServerGet(requestSpec, responseSpec, URL, jsonAttributeToGetBack);
+    }
+
+    public String getLoanProductDetails(final RequestSpecification requestSpec, final ResponseSpecification responseSpec,
+            final Integer loanProductId) {
+        final String URL = "/mifosng-provider/api/v1/loanproducts/" + loanProductId + "?associations=all&" + Utils.TENANT_IDENTIFIER;
+        return Utils.performServerGet(requestSpec, responseSpec, URL, null);
     }
 
     public ArrayList getLoanCharges(final Integer loanId) {
@@ -233,6 +244,7 @@ public class LoanTransactionHelper {
         if (transactionAmount != null) {
             map.put("transactionAmount", transactionAmount);
         }
+        System.out.println("Loan Application disburse request : " + map);
         return new Gson().toJson(map);
     }
 

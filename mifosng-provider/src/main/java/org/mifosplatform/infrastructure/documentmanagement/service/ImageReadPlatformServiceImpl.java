@@ -10,9 +10,12 @@ import java.sql.SQLException;
 
 import org.mifosplatform.infrastructure.core.domain.JdbcSupport;
 import org.mifosplatform.infrastructure.core.service.RoutingDataSource;
+import org.mifosplatform.infrastructure.documentmanagement.api.ImagesApiResource.ENTITY_TYPE_FOR_IMAGES;
 import org.mifosplatform.infrastructure.documentmanagement.contentrepository.ContentRepository;
 import org.mifosplatform.infrastructure.documentmanagement.contentrepository.ContentRepositoryFactory;
 import org.mifosplatform.infrastructure.documentmanagement.data.ImageData;
+import org.mifosplatform.organisation.staff.domain.Staff;
+import org.mifosplatform.organisation.staff.domain.StaffRepositoryWrapper;
 import org.mifosplatform.portfolio.client.domain.Client;
 import org.mifosplatform.portfolio.client.domain.ClientRepositoryWrapper;
 import org.mifosplatform.portfolio.client.exception.ImageNotFoundException;
@@ -28,10 +31,12 @@ public class ImageReadPlatformServiceImpl implements ImageReadPlatformService {
     private final JdbcTemplate jdbcTemplate;
     private final ContentRepositoryFactory contentRepositoryFactory;
     private final ClientRepositoryWrapper clientRepositoryWrapper;
+    private final StaffRepositoryWrapper staffRepositoryWrapper;
 
     @Autowired
     public ImageReadPlatformServiceImpl(final RoutingDataSource dataSource, final ContentRepositoryFactory documentStoreFactory,
-            final ClientRepositoryWrapper clientRepositoryWrapper) {
+            final ClientRepositoryWrapper clientRepositoryWrapper, StaffRepositoryWrapper staffRepositoryWrapper) {
+        this.staffRepositoryWrapper = staffRepositoryWrapper;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.contentRepositoryFactory = documentStoreFactory;
         this.clientRepositoryWrapper = clientRepositoryWrapper;
@@ -45,9 +50,14 @@ public class ImageReadPlatformServiceImpl implements ImageReadPlatformService {
             this.entityDisplayName = entityDisplayName;
         }
 
-        public String schema() {
-            return " image.id as id, image.location as location, image.storage_type_enum as storageType "
-                    + " from m_image image , m_client client " + " where client.image_id = image.id and client.id=?";
+        public String schema(String entityType) {
+            StringBuilder builder = new StringBuilder("image.id as id, image.location as location, image.storage_type_enum as storageType ");
+            if (ENTITY_TYPE_FOR_IMAGES.CLIENTS.toString().equalsIgnoreCase(entityType)) {
+                builder.append(" from m_image image , m_client client " + " where client.image_id = image.id and client.id=?");
+            } else if (ENTITY_TYPE_FOR_IMAGES.STAFF.toString().equalsIgnoreCase(entityType)) {
+                builder.append("from m_image image , m_staff staff " + " where staff.image_id = image.id and staff.id=?");
+            }
+            return builder.toString();
         }
 
         @Override
@@ -61,23 +71,30 @@ public class ImageReadPlatformServiceImpl implements ImageReadPlatformService {
     }
 
     @Override
-    public ImageData retrieveClientImage(final Long clientId) {
+    public ImageData retrieveImage(String entityType, final Long entityId) {
         try {
-            final Client client = this.clientRepositoryWrapper.findOneWithNotFoundDetection(clientId);
+            Object owner;
+            String displayName = null;
+            if (ENTITY_TYPE_FOR_IMAGES.CLIENTS.toString().equalsIgnoreCase(entityType)) {
+                owner = this.clientRepositoryWrapper.findOneWithNotFoundDetection(entityId);
+                displayName = ((Client) owner).getDisplayName();
+            } else if (ENTITY_TYPE_FOR_IMAGES.STAFF.toString().equalsIgnoreCase(entityType)) {
+                owner = this.staffRepositoryWrapper.findOneWithNotFoundDetection(entityId);
+                displayName = ((Staff) owner).displayName();
+            }
+            final ImageMapper imageMapper = new ImageMapper(displayName);
 
-            final ImageMapper imageMapper = new ImageMapper(client.getDisplayName());
+            final String sql = "select " + imageMapper.schema(entityType);
 
-            final String sql = "select " + imageMapper.schema();
-
-            final ImageData imageData = this.jdbcTemplate.queryForObject(sql, imageMapper, new Object[] { clientId });
+            final ImageData imageData = this.jdbcTemplate.queryForObject(sql, imageMapper, new Object[] { entityId });
             final ContentRepository contentRepository = this.contentRepositoryFactory.getRepository(imageData.storageType());
             final ImageData result = contentRepository.fetchImage(imageData);
 
-            if (result.getContent() == null) { throw new ImageNotFoundException("clients", clientId); }
+            if (result.getContent() == null) { throw new ImageNotFoundException(entityType, entityId); }
 
             return result;
         } catch (final EmptyResultDataAccessException e) {
-            throw new ImageNotFoundException("clients", clientId);
+            throw new ImageNotFoundException("clients", entityId);
         }
     }
 }

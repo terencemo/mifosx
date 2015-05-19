@@ -15,4 +15,5 @@ public class WorkingDaysNotFoundException extends AbstractPlatformResourceNotFou
     public WorkingDaysNotFoundException() {
         super("error.msg.working.days.not.configured", "Must configure the Working days for the organisation.");
     }
+
 }

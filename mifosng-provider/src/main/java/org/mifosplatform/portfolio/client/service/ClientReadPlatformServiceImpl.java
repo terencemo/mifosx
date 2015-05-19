@@ -176,7 +176,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         if (displayName != null) {
             extraCriteria += " and concat(ifnull(c.firstname, ''), if(c.firstname > '',' ', '') , ifnull(c.lastname, '')) like "
-                    + ApiParameterHelper.sqlEncodeString(displayName);
+                    + ApiParameterHelper.sqlEncodeString("%" + displayName + "%");
         }
 
         if (firstname != null) {
@@ -189,6 +189,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         if (searchParameters.isScopedByOfficeHierarchy()) {
             extraCriteria += " and o.hierarchy like " + ApiParameterHelper.sqlEncodeString(searchParameters.getHierarchy() + "%");
+        }
+        
+        if(searchParameters.isOrphansOnly()){
+        	extraCriteria += " and c.id NOT IN (select client_id from m_group_client) ";
         }
 
         if (StringUtils.isNotBlank(extraCriteria)) {

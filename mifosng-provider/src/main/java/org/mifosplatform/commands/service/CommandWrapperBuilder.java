@@ -7,7 +7,9 @@ package org.mifosplatform.commands.service;
 
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.infrastructure.accountnumberformat.service.AccountNumberFormatConstants;
+import org.mifosplatform.portfolio.paymenttype.api.PaymentTypeApiResourceConstants;
 import org.mifosplatform.portfolio.savings.DepositsApiConstants;
+import org.mifosplatform.useradministration.api.PasswordPreferencesApiConstants;
 
 public class CommandWrapperBuilder {
 
@@ -2353,4 +2355,43 @@ public class CommandWrapperBuilder {
         this.href = "/entitytoentitymapping/" + mapId;
         return this;
     }
+
+    public CommandWrapperBuilder updateWorkingDays() {
+        this.actionName = "UPDATE";
+        this.entityName = "WORKINGDAYS";
+        this.href = "/workingdays/";
+        return this;
+    }
+
+    public CommandWrapperBuilder updatePasswordPreferences() {
+        this.actionName = "UPDATE";
+        this.entityName = PasswordPreferencesApiConstants.ENTITY_NAME;
+        this.href = "/" + PasswordPreferencesApiConstants.RESOURCE_NAME;
+        return this;
+    }
+
+    public CommandWrapperBuilder createPaymentType() {
+        this.actionName = "CREATE";
+        this.entityName = PaymentTypeApiResourceConstants.ENTITY_NAME;
+        this.entityId = null;
+        this.href = "/" + PaymentTypeApiResourceConstants.RESOURCE_NAME;
+        return this;
+    }
+
+    public CommandWrapperBuilder updatePaymentType(final Long paymentTypeId) {
+        this.actionName = "UPDATE";
+        this.entityName = PaymentTypeApiResourceConstants.ENTITY_NAME;
+        this.entityId = paymentTypeId;
+        this.href = "/" + PaymentTypeApiResourceConstants.RESOURCE_NAME + paymentTypeId;
+        return this;
+    }
+
+    public CommandWrapperBuilder deletePaymentType(final Long paymentTypeId) {
+        this.actionName = "DELETE";
+        this.entityName = "PAYMENTTYPE";
+        this.entityId = paymentTypeId;
+        this.href = "/" + PaymentTypeApiResourceConstants.RESOURCE_NAME + paymentTypeId;
+        return this;
+    }
+
 }

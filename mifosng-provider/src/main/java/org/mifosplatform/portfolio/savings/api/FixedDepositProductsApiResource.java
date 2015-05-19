@@ -32,8 +32,6 @@ import org.mifosplatform.accounting.producttoaccountmapping.service.ProductToGLA
 import org.mifosplatform.commands.domain.CommandWrapper;
 import org.mifosplatform.commands.service.CommandWrapperBuilder;
 import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
-import org.mifosplatform.infrastructure.codes.data.CodeValueData;
-import org.mifosplatform.infrastructure.codes.service.CodeValueReadPlatformService;
 import org.mifosplatform.infrastructure.core.api.ApiRequestParameterHelper;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.EnumOptionData;
@@ -47,7 +45,8 @@ import org.mifosplatform.portfolio.charge.service.ChargeReadPlatformService;
 import org.mifosplatform.portfolio.common.service.DropdownReadPlatformService;
 import org.mifosplatform.portfolio.interestratechart.data.InterestRateChartData;
 import org.mifosplatform.portfolio.interestratechart.service.InterestRateChartReadPlatformService;
-import org.mifosplatform.portfolio.paymentdetail.PaymentDetailConstants;
+import org.mifosplatform.portfolio.paymenttype.data.PaymentTypeData;
+import org.mifosplatform.portfolio.paymenttype.service.PaymentTypeReadPlatformService;
 import org.mifosplatform.portfolio.savings.DepositAccountType;
 import org.mifosplatform.portfolio.savings.DepositsApiConstants;
 import org.mifosplatform.portfolio.savings.SavingsCompoundingInterestPeriodType;
@@ -77,13 +76,13 @@ public class FixedDepositProductsApiResource {
     private final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
     private final AccountingDropdownReadPlatformService accountingDropdownReadPlatformService;
-    private final CodeValueReadPlatformService codeValueReadPlatformService;
     private final ProductToGLAccountMappingReadPlatformService accountMappingReadPlatformService;
     private final ChargeReadPlatformService chargeReadPlatformService;
     private final InterestRateChartReadPlatformService chartReadPlatformService;
     private final InterestRateChartReadPlatformService interestRateChartReadPlatformService;
     private final DepositsDropdownReadPlatformService depositsDropdownReadPlatformService;
     private final DropdownReadPlatformService dropdownReadPlatformService;
+    private final PaymentTypeReadPlatformService paymentTypeReadPlatformService;
 
     @Autowired
     public FixedDepositProductsApiResource(final DepositProductReadPlatformService depositProductReadPlatformService,
@@ -91,13 +90,14 @@ public class FixedDepositProductsApiResource {
             final CurrencyReadPlatformService currencyReadPlatformService, final PlatformSecurityContext context,
             final DefaultToApiJsonSerializer<FixedDepositProductData> toApiJsonSerializer,
             final PortfolioCommandSourceWritePlatformService commandsSourceWritePlatformService,
-            final ApiRequestParameterHelper apiRequestParameterHelper, final CodeValueReadPlatformService codeValueReadPlatformService,
+            final ApiRequestParameterHelper apiRequestParameterHelper,
             final AccountingDropdownReadPlatformService accountingDropdownReadPlatformService,
             final ProductToGLAccountMappingReadPlatformService accountMappingReadPlatformService,
             final ChargeReadPlatformService chargeReadPlatformService, final InterestRateChartReadPlatformService chartReadPlatformService,
             final InterestRateChartReadPlatformService interestRateChartReadPlatformService,
             final DepositsDropdownReadPlatformService depositsDropdownReadPlatformService,
-            final DropdownReadPlatformService dropdownReadPlatformService) {
+            final DropdownReadPlatformService dropdownReadPlatformService,
+            final PaymentTypeReadPlatformService paymentTypeReadPlatformService) {
         this.depositProductReadPlatformService = depositProductReadPlatformService;
         this.savingsDropdownReadPlatformService = savingsDropdownReadPlatformService;
         this.currencyReadPlatformService = currencyReadPlatformService;
@@ -105,7 +105,6 @@ public class FixedDepositProductsApiResource {
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.commandsSourceWritePlatformService = commandsSourceWritePlatformService;
         this.apiRequestParameterHelper = apiRequestParameterHelper;
-        this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.accountingDropdownReadPlatformService = accountingDropdownReadPlatformService;
         this.accountMappingReadPlatformService = accountMappingReadPlatformService;
         this.chargeReadPlatformService = chargeReadPlatformService;
@@ -113,6 +112,7 @@ public class FixedDepositProductsApiResource {
         this.interestRateChartReadPlatformService = interestRateChartReadPlatformService;
         this.depositsDropdownReadPlatformService = depositsDropdownReadPlatformService;
         this.dropdownReadPlatformService = dropdownReadPlatformService;
+        this.paymentTypeReadPlatformService = paymentTypeReadPlatformService;
     }
 
     @POST
@@ -253,8 +253,7 @@ public class FixedDepositProductsApiResource {
         final Collection<EnumOptionData> withdrawalFeeTypeOptions = this.savingsDropdownReadPlatformService
                 .retrievewithdrawalFeeTypeOptions();
 
-        final Collection<CodeValueData> paymentTypeOptions = this.codeValueReadPlatformService
-                .retrieveCodeValuesByCode(PaymentDetailConstants.paymentTypeCodeName);
+        final Collection<PaymentTypeData> paymentTypeOptions = this.paymentTypeReadPlatformService.retrieveAllPaymentTypes();
 
         final Collection<EnumOptionData> accountingRuleOptions = this.accountingDropdownReadPlatformService
                 .retrieveAccountingRuleTypeOptions();
@@ -269,7 +268,7 @@ public class FixedDepositProductsApiResource {
 
         // charges
         final boolean feeChargesOnly = true;
-        Collection<ChargeData> chargeOptions = this.chargeReadPlatformService.retrieveSavingsApplicableCharges(feeChargesOnly);
+        Collection<ChargeData> chargeOptions = this.chargeReadPlatformService.retrieveSavingsProductApplicableCharges(feeChargesOnly);
         chargeOptions = CollectionUtils.isEmpty(chargeOptions) ? null : chargeOptions;
 
         Collection<ChargeData> penaltyOptions = this.chargeReadPlatformService.retrieveSavingsApplicablePenalties();

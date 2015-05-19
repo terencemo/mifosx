@@ -5,22 +5,20 @@
  */
 package org.mifosplatform.infrastructure.core.data;
 
+import com.google.gson.JsonArray;
+import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.model.property.RRule;
+import org.apache.commons.lang.StringUtils;
+import org.joda.time.LocalDate;
+import org.quartz.CronExpression;
+import org.springframework.util.ObjectUtils;
+
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.fortuna.ical4j.model.ValidationException;
-import net.fortuna.ical4j.model.property.RRule;
-
-import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
-import org.quartz.CronExpression;
-import org.springframework.util.ObjectUtils;
-
-import com.google.gson.JsonArray;
 
 public class DataValidatorBuilder {
 
@@ -131,8 +129,9 @@ public class DataValidatorBuilder {
 
     /*** FIXME: Vishwas, why does this method have a parameter? Seems wrong ***/
     /*
-     * This method is not meant for validation, if you have mandatory boolean param and 
-     * if it has invalid value or value not passed then call this method, this method is always used with input as false   
+     * This method is not meant for validation, if you have mandatory boolean
+     * param and if it has invalid value or value not passed then call this
+     * method, this method is always used with input as false
      */
     public DataValidatorBuilder trueOrFalseRequired(final boolean trueOfFalseFieldProvided) {
         if (!trueOfFalseFieldProvided && !this.ignoreNullValue) {
@@ -387,7 +386,7 @@ public class DataValidatorBuilder {
         }
         return this;
     }
-    
+
     public DataValidatorBuilder integerEqualToOrGreaterThanNumber(Integer number) {
         if (this.value == null && this.ignoreNullValue) { return this; }
 
@@ -396,8 +395,8 @@ public class DataValidatorBuilder {
             if (intValue < number) {
                 final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
                         .append(this.parameter).append(".not.equal.to.or.greater.than.specified.number");
-                final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter).append(
-                        " must be equal to or greater than").append(number);
+                final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
+                        .append(" must be equal to or greater than").append(number);
                 final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
                         defaultEnglishMessage.toString(), this.parameter, intValue, number);
                 this.dataValidationErrors.add(error);
@@ -405,7 +404,7 @@ public class DataValidatorBuilder {
         }
         return this;
     }
-    
+
     public DataValidatorBuilder integerSameAsNumber(Integer number) {
         if (this.value == null && this.ignoreNullValue) { return this; }
 
@@ -416,6 +415,24 @@ public class DataValidatorBuilder {
                         .append(this.parameter).append(".not.equal.to.specified.number");
                 final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
                         .append(" must be same as").append(number);
+                final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
+                        defaultEnglishMessage.toString(), this.parameter, intValue, number);
+                this.dataValidationErrors.add(error);
+            }
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder integerInMultiplesOfNumber(Integer number) {
+        if (this.value == null && this.ignoreNullValue) { return this; }
+
+        if (this.value != null) {
+            final Integer intValue = Integer.valueOf(this.value.toString());
+            if (intValue < number || intValue % number != 0) {
+                final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
+                        .append(this.parameter).append(".not.in.multiples.of.specified.number");
+                final StringBuilder defaultEnglishMessage = new StringBuilder("The parameter ").append(this.parameter)
+                        .append(" must be multiples of ").append(number);
                 final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
                         defaultEnglishMessage.toString(), this.parameter, intValue, number);
                 this.dataValidationErrors.add(error);
@@ -725,6 +742,23 @@ public class DataValidatorBuilder {
         return this;
     }
 
+    public DataValidatorBuilder matchesRegularExpression(final String expression, final String Message) {
+        if (this.value == null && this.ignoreNullValue) { return this; }
+
+        if (this.value != null && !this.value.toString().matches(expression)) {
+            final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
+                    .append(this.parameter).append(".does.not.match.regexp");
+            final StringBuilder defaultEnglishMessage = new StringBuilder(Message);
+
+            final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
+                    defaultEnglishMessage.toString(), this.parameter, this.value, expression);
+
+            this.dataValidationErrors.add(error);
+        }
+
+        return this;
+    }
+
     private DataValidatorBuilder validateStringFor(final String validInputs) {
         if (this.value == null && this.ignoreNullValue) { return this; }
         final String[] inputs = validInputs.split(VALID_INPUT_SEPERATOR);
@@ -807,7 +841,7 @@ public class DataValidatorBuilder {
         }
         return this;
     }
-    
+
     public DataValidatorBuilder validateDateBefore(final LocalDate date) {
         if (this.value == null && this.ignoreNullValue) { return this; }
 
@@ -825,7 +859,7 @@ public class DataValidatorBuilder {
         }
         return this;
     }
-    
+
     public DataValidatorBuilder validateDateBeforeOrEqual(final LocalDate date) {
         if (this.value == null && this.ignoreNullValue) { return this; }
 
@@ -836,6 +870,24 @@ public class DataValidatorBuilder {
                         .append(this.parameter).append(".is.greater.than.date");
                 final StringBuilder defaultEnglishMessage = new StringBuilder("The ").append(this.parameter)
                         .append(" must be less than or equal to provided date").append(date);
+                final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
+                        defaultEnglishMessage.toString(), this.parameter, dateVal, date);
+                this.dataValidationErrors.add(error);
+            }
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder validateDateForEqual(final LocalDate date) {
+        if (this.value == null && this.ignoreNullValue) { return this; }
+
+        if (this.value != null && date != null) {
+            final LocalDate dateVal = (LocalDate) this.value;
+            if (!dateVal.isEqual(date)) {
+                final StringBuilder validationErrorCode = new StringBuilder("validation.msg.").append(this.resource).append(".")
+                        .append(this.parameter).append(".is.not.equal.to.date");
+                final StringBuilder defaultEnglishMessage = new StringBuilder("The ").append(this.parameter)
+                        .append(" must be equal to provided date").append(date);
                 final ApiParameterError error = ApiParameterError.parameterError(validationErrorCode.toString(),
                         defaultEnglishMessage.toString(), this.parameter, dateVal, date);
                 this.dataValidationErrors.add(error);

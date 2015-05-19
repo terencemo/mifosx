@@ -21,43 +21,57 @@ public final class SearchParameters {
     private final String orderBy;
     private final String sortOrder;
     private final String accountNo;
+    private final String currencyCode;
 
     private final Long staffId;
+
+    private final Long loanId;
+
+    private final Long savingsId;
+    private final Boolean orphansOnly;
 
     public static SearchParameters from(final String sqlSearch, final Long officeId, final String externalId, final String name,
             final String hierarchy) {
         final Long staffId = null;
         final String accountNo = null;
+        final Long loanId = null;
+        final Long savingsId = null;
+        final Boolean orphansOnly = false;
         return new SearchParameters(sqlSearch, officeId, externalId, name, hierarchy, null, null, null, null, null, null, staffId,
-                accountNo);
+                accountNo, loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forClients(final String sqlSearch, final Long officeId, final String externalId,
             final String displayName, final String firstname, final String lastname, final String hierarchy, final Integer offset,
-            final Integer limit, final String orderBy, final String sortOrder) {
+            final Integer limit, final String orderBy, final String sortOrder, final Boolean orphansOnly) {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
         final String accountNo = null;
+        final Long loanId = null;
+        final Long savingsId = null;
 
         return new SearchParameters(sqlSearch, officeId, externalId, displayName, hierarchy, firstname, lastname, offset, maxLimitAllowed,
-                orderBy, sortOrder, staffId, accountNo);
+                orderBy, sortOrder, staffId, accountNo, loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forGroups(final String sqlSearch, final Long officeId, final Long staffId, final String externalId,
             final String name, final String hierarchy, final Integer offset, final Integer limit, final String orderBy,
-            final String sortOrder) {
+            final String sortOrder, final Boolean orphansOnly) {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final String accountNo = null;
+        final Long loanId = null;
+        final Long savingsId = null;
 
         return new SearchParameters(sqlSearch, officeId, externalId, name, hierarchy, null, null, offset, maxLimitAllowed, orderBy,
-                sortOrder, staffId, accountNo);
+                sortOrder, staffId, accountNo, loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forOffices(final String orderBy, final String sortOrder) {
-        return new SearchParameters(null, null, null, null, null, null, null, null, null, orderBy, sortOrder,
-                null, null);
+        final Boolean orphansOnly = false;
+        return new SearchParameters(null, null, null, null, null, null, null, null, null, orderBy, sortOrder, null, null, null, null,
+                orphansOnly);
     }
 
     public static SearchParameters forLoans(final String sqlSearch, final String externalId, final Integer offset, final Integer limit,
@@ -65,27 +79,45 @@ public final class SearchParameters {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
+        final Long loanId = null;
+        final Long savingsId = null;
+        final Boolean orphansOnly = false;
 
         return new SearchParameters(sqlSearch, null, externalId, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder,
-                staffId, accountNo);
+                staffId, accountNo, loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forJournalEntries(final Long officeId, final Integer offset, final Integer limit, final String orderBy,
-            final String sortOrder) {
+            final String sortOrder, final Long loanId, final Long savingsId) {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
+        final Boolean orphansOnly = false;
 
         return new SearchParameters(null, officeId, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder, staffId,
-                null);
+                null, loanId, savingsId, orphansOnly);
+    }
+
+    public static SearchParameters forJournalEntries(final Long officeId, final Integer offset, final Integer limit, final String orderBy,
+            final String sortOrder, final Long loanId, final Long savingsId, final String currencyCode) {
+        final Integer maxLimitAllowed = getCheckedLimit(limit);
+        final Long staffId = null;
+        final Boolean orphansOnly = false;
+
+        return new SearchParameters(null, officeId, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder, staffId,
+                null, loanId, savingsId, orphansOnly, currencyCode);
     }
 
     public static SearchParameters forPagination(final Integer offset, final Integer limit, final String orderBy, final String sortOrder) {
 
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
+        final Long loanId = null;
+        final Long savingsId = null;
+        final Boolean orphansOnly = false;
 
-        return new SearchParameters(null, null, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder, staffId, null);
+        return new SearchParameters(null, null, null, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder, staffId, null,
+                loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forSavings(final String sqlSearch, final String externalId, final Integer offset, final Integer limit,
@@ -94,9 +126,12 @@ public final class SearchParameters {
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
         final String accountNo = null;
+        final Long loanId = null;
+        final Long savingsId = null;
+        final Boolean orphansOnly = false;
 
         return new SearchParameters(sqlSearch, null, externalId, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder,
-                staffId, accountNo);
+                staffId, accountNo, loanId, savingsId, orphansOnly);
     }
 
     public static SearchParameters forAccountTransfer(final String sqlSearch, final String externalId, final Integer offset,
@@ -105,14 +140,18 @@ public final class SearchParameters {
         final Integer maxLimitAllowed = getCheckedLimit(limit);
         final Long staffId = null;
         final String accountNo = null;
+        final Long loanId = null;
+        final Long savingsId = null;
+        final Boolean orphansOnly = false;
 
         return new SearchParameters(sqlSearch, null, externalId, null, null, null, null, offset, maxLimitAllowed, orderBy, sortOrder,
-                staffId, accountNo);
+                staffId, accountNo, loanId, savingsId, orphansOnly);
     }
 
     private SearchParameters(final String sqlSearch, final Long officeId, final String externalId, final String name,
             final String hierarchy, final String firstname, final String lastname, final Integer offset, final Integer limit,
-            final String orderBy, final String sortOrder, final Long staffId, final String accountNo) {
+            final String orderBy, final String sortOrder, final Long staffId, final String accountNo, final Long loanId,
+            final Long savingsId, final Boolean orphansOnly) {
         this.sqlSearch = sqlSearch;
         this.officeId = officeId;
         this.externalId = externalId;
@@ -126,6 +165,33 @@ public final class SearchParameters {
         this.sortOrder = sortOrder;
         this.staffId = staffId;
         this.accountNo = accountNo;
+        this.loanId = loanId;
+        this.savingsId = savingsId;
+        this.orphansOnly = orphansOnly;
+        this.currencyCode = null;
+    }
+
+    public SearchParameters(final String sqlSearch, final Long officeId, final String externalId, final String name,
+            final String hierarchy, final String firstname, final String lastname, final Integer offset, final Integer limit,
+            final String orderBy, final String sortOrder, final Long staffId, final String accountNo, final Long loanId,
+            final Long savingsId, final Boolean orphansOnly, final String currencyCode) {
+        this.sqlSearch = sqlSearch;
+        this.officeId = officeId;
+        this.externalId = externalId;
+        this.name = name;
+        this.hierarchy = hierarchy;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.offset = offset;
+        this.limit = limit;
+        this.orderBy = orderBy;
+        this.sortOrder = sortOrder;
+        this.staffId = staffId;
+        this.accountNo = accountNo;
+        this.loanId = loanId;
+        this.savingsId = savingsId;
+        this.orphansOnly = orphansOnly;
+        this.currencyCode = currencyCode;
     }
 
     public boolean isOrderByRequested() {
@@ -156,6 +222,10 @@ public final class SearchParameters {
         return this.officeId != null && this.officeId != 0;
     }
 
+    public boolean isCurrencyCodePassed() {
+        return this.currencyCode != null;
+    }
+
     public boolean isLimited() {
         return this.limit != null && this.limit.intValue() > 0;
     }
@@ -175,7 +245,11 @@ public final class SearchParameters {
     public Long getOfficeId() {
         return this.officeId;
     }
-
+   
+    public String getCurrencyCode(){
+        return this.currencyCode;
+    }
+    
     public String getExternalId() {
         return this.externalId;
     }
@@ -224,4 +298,25 @@ public final class SearchParameters {
         return this.accountNo;
     }
 
+    public boolean isLoanIdPassed() {
+        return this.loanId != null && this.loanId != 0;
+    }
+
+    public boolean isSavingsIdPassed() {
+        return this.savingsId != null && this.savingsId != 0;
+    }
+
+    public Long getLoanId() {
+        return this.loanId;
+    }
+
+    public Long getSavingsId() {
+        return this.savingsId;
+    }
+
+    public Boolean isOrphansOnly() {
+        if (this.orphansOnly != null) { return this.orphansOnly; }
+        return false;
+
+    }
 }

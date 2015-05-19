@@ -35,6 +35,8 @@ The three ways to get up and running with mifos platform is:
 
 ## 1. Launch script automatic out-of-the box setup
 
+Important : Automatic setup is currently broken, please follow the instructions for **Manual Installation** instead. For details of the issue, refer comments at https://mifosforge.jira.com/browse/MIFOSX-1756
+
 The Mifos release artifact contains two launch scripts with names starting with "**runmifosx**". One of them (the one with the *.bat* file extension) is used to launch the platform on a Windows machine while the other (which has the *.sh* file extension) is used to launch the platform on Mac OS X and Linux. Just double-click on the respective script (depending on your OS) and voila! you have your own Mifos X platform running locally on your computer. 
 
 **Note**: *In case your script does not launch by double clicking on Linux or Mac OS X, here's what you can do. Head over to bash and type the following:*
@@ -47,7 +49,7 @@ $ ./runmifosx.sh
 
 ## 2. Amazon Public AMI
 
-  Use AWS Wizard to launch instance by using this link: <a target="_blank" href="https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#launchAmi=ami-909bb3c2" title="Latest Mifos Platform Public AMI">Mifos Platform AMI (ami-909bb3c2)</a>
+  Use AWS Wizard to launch instance by using this link: <a target="_blank" href="https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#launchAmi=ami-145d6046" title="Latest Mifos Platform Public AMI">Mifos Platform AMI (ami-145d6046)</a>
 
   *Note:* Read through the following as you step through the AWS Wizard
   
