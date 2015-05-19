@@ -22,6 +22,7 @@ public class CenterData {
     private final Long id;
     private final String name;
     private final String externalId;
+
     private final Long officeId;
     private final String officeName;
     private final Long staffId;
@@ -161,5 +162,9 @@ public class CenterData {
 
     public String getStaffName() {
         return this.staffName;
+    }
+
+    public String getExternalId() {
+        return this.externalId;
     }
 }

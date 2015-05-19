@@ -43,6 +43,7 @@
 										  org.mifosplatform.template.*,
 										  org.mifosplatform.template.service.*,
 										  org.mifosplatform.useradministration.*,
+										  org.mifosplatform.sanjose.*,
 										  org.mifosplatform.batch">
 		<context:exclude-filter expression="org.springframework.stereotype.Controller"
 			type="annotation" />

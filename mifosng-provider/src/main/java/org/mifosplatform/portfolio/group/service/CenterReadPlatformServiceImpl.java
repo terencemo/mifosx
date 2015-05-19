@@ -390,6 +390,14 @@ public class CenterReadPlatformServiceImpl implements CenterReadPlatformService 
     }
 
     @Override
+    public Collection<CenterData> retrieveAllForOffice(final Long officeId) {
+        final String sql = "SELECT " + this.centerMapper.schema()
+                + " WHERE g.office_id = ? and g.parent_id is null AND g.level_id = ?";
+
+        return this.jdbcTemplate.query(sql, this.centerMapper, new Object[] { officeId, GroupTypes.CENTER.getId() });
+    }
+
+    @Override
     public CenterData retrieveTemplate(final Long officeId, final boolean staffInSelectedOfficeOnly) {
 
         final Long officeIdDefaulted = defaultToUsersOfficeIfNull(officeId);

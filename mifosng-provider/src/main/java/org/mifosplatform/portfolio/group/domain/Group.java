@@ -692,4 +692,12 @@ public final class Group extends AbstractPersistable<Long> {
         }
         return latestRecordWithNoEndDate;
     }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    public String getExternalId() {
+        return this.externalId;
+    }
 }

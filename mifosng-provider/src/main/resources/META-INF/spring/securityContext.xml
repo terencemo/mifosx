@@ -19,6 +19,8 @@
 
 	<http create-session="stateless" use-expressions="true" pattern="/api/**"
 		entry-point-ref="basicAuthenticationEntryPoint">
+		<intercept-url pattern="/api/*/extensions/**" access="permitAll"
+			method="POST" requires-channel="https" />
 		<intercept-url pattern="/api/*/authentication" access="permitAll"
 			method="POST" requires-channel="https" />
 		<intercept-url pattern="/api/**" access="isFullyAuthenticated()"

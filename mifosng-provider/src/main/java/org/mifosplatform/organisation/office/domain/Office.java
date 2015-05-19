@@ -192,6 +192,22 @@ public class Office extends AbstractPersistable<Long> {
         return this.hierarchy;
     }
 
+    public Office getParent() {
+      return this.parent;
+    }
+
+    public List<Office> getChildren() {
+      return this.children;
+    }
+
+    public String getExternalId() {
+      return this.externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+      this.externalId = externalId;
+    }
+
     public boolean hasParentOf(final Office office) {
         boolean isParent = false;
         if (this.parent != null) {
